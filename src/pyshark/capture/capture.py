@@ -26,8 +26,9 @@ class Capture(object):
         self.tshark_process = None
         if not(decryption_key):
             self.encryption=None
-        elif  encryption_type and (encryption_type.lower() in 
-                                   self.SUPPORTED_ENCRYPTION_STANDARDS):
+        elif isinstance(encryption_type, basestring) and \
+                                        (encryption_type.lower() in 
+                                        self.SUPPORTED_ENCRYPTION_STANDARDS):
             self.encryption=(decryption_key, encryption_type.lower())
         else:
             encryption_standards = "', '".join(
