@@ -24,11 +24,17 @@ class Capture(object):
         self.display_filter = display_filter
         self.only_summaries = only_summaries
         self.tshark_process = None
-        if encryption_type and encryption_type.lower() in self.SUPPORTED_ENCRYPTION_STANDARDS:
+        if not(decryption_key):
+            self.encryption=None
+        elif  encryption_type and (encryption_type.lower() in 
+                                   self.SUPPORTED_ENCRYPTION_STANDARDS):
             self.encryption=(decryption_key, encryption_type.lower())
         else:
-            encryption_standards = "', '".join(self.SUPPORTED_ENCRYPTION_STANDARDS[:-1]) + "', and '" + self.SUPPORTED_ENCRYPTION_STANDARDS[-1]
-            raise UnknownEncyptionStandardException("please choose between '" + encryption_standards + "'.")
+            encryption_standards = "', '".join(
+                    self.SUPPORTED_ENCRYPTION_STANDARDS[:-1]) + "', and '" + \
+                    self.SUPPORTED_ENCRYPTION_STANDARDS[-1]
+            raise UnknownEncyptionStandardException("please choose between '" +\
+                                                    encryption_standards + "'.")
 
     def __getitem__(self, item):
         """
@@ -71,7 +77,8 @@ class Capture(object):
     def _extract_tag_from_data(data, tag_name='packet'):
         """
         Gets data containing a (part of) tshark xml.
-        If the given tag is found in it, returns the tag data and the remaining data.
+        If the given tag is found in it, returns the tag data and the 
+        remaining data. 
         Otherwise returns None and the same data.
 
         :param data: string of a partial tshark xml.
@@ -85,7 +92,8 @@ class Capture(object):
             return data[tag_start:tag_end], data[tag_end:]
         return None, data
 
-    def _packets_from_fd(self, fd, previous_data=b'', packet_count=None, wait_for_more_data=True, batch_size=4096):
+    def _packets_from_fd(self, fd, previous_data=b'', packet_count=None, 
+                         wait_for_more_data=True, batch_size=4096):
         """
         Reads packets from a file-like object containing a TShark XML.
         Returns a generator.
@@ -101,10 +109,12 @@ class Capture(object):
         psml_struct = None
 
         if self.only_summaries:
-            # If summaries are read, we need the psdml structure which appears on top of the file.
+            # If summaries are read, we need the psdml structure which appears 
+            # on top of the file.
             while not psml_struct:
                 data += fd.read(batch_size)
-                psml_struct, data = self._extract_tag_from_data(data, 'structure')
+                psml_struct, data = self._extract_tag_from_data(data, 
+                                                                'structure')
                 psml_struct = psml_structure_from_xml(psml_struct)
 
         while True:
@@ -117,7 +127,8 @@ class Capture(object):
                 packets_captured += 1
                 yield packet_from_xml_packet(packet, psml_structure=psml_struct)
 
-            if packet is None and not wait_for_more_data and len(new_data) < batch_size:
+            if packet is None and not wait_for_more_data and \
+                                    len(new_data) < batch_size:
                 break
 
             if packet_count and packets_captured >= packet_count:
@@ -131,7 +142,8 @@ class Capture(object):
         """
         if self.encryption:
             extra_params+=['-o', 'wlan.enable_decryption:TRUE', '-o', 
-                'uat:80211_keys:"'+self.encryption[1]+'","'+self.encryption[0]+'"']
+                           'uat:80211_keys:"'+self.encryption[1]+'","'+\
+                           self.encryption[0]+'"']
         xml_type = 'psml' if self.only_summaries else 'pdml'
         parameters = [get_tshark_path(), '-T', xml_type] +\
                      self.get_parameters(packet_count=packet_count) +\
