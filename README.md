@@ -42,22 +42,22 @@ Layer IP:
 
 #### Other options
 
-* **lazy**: Whether to lazily get packets from the cap file or read all of them 
+* **lazy**: Whether to lazily get packets from the cap file or read all of them
 immediately.
-* **param keep_packets**: Whether to keep packets after reading them via next(). 
-Used to conserve memory when reading large caps (can only be used along with 
+* **param keep_packets**: Whether to keep packets after reading them via next().
+Used to conserve memory when reading large caps (can only be used along with
 the "lazy" option!)
-* **param input_file**: Either a path or a file-like object containing either a 
+* **param input_file**: Either a path or a file-like object containing either a
 packet capture file (PCAP, PCAP-NG..) or a TShark xml.
 * **param bpf_filter**: A BPF (tcpdump) filter to apply on the cap before reading.
-* **param display_filter**: A display (wireshark) filter to apply on the cap 
+* **param display_filter**: A display (wireshark) filter to apply on the cap
 before reading it.
-* **param only_summaries**: Only produce packet summaries, much faster but includes 
+* **param only_summaries**: Only produce packet summaries, much faster but includes
 very little information
 * **param decryption_key**: Key used to encrypt and decrypt captured traffic.
-* **param encryption_type**: Standard of encryption used in captured traffic (must 
+* **param encryption_type**: Standard of encryption used in captured traffic (must
 be either 'WEP', 'WPA-PWD', or 'WPA-PWK'. Defaults to WPA-PWK.
-  
+
 ###Reading from a live interface:
 
 ```python
@@ -74,14 +74,14 @@ for packet in capture.sniff_continuously(packet_count=5):
 
 #### Other options
 
-* **param interface**: Name of the interface to sniff on. If not given, takes 
+* **param interface**: Name of the interface to sniff on. If not given, takes
 the first available.
 * **param bpf_filter**: BPF filter to use on packets.
 * **param display_filter**: Display (wireshark) filter to use.
-* **param only_summaries**: Only produce packet summaries, much faster but 
+* **param only_summaries**: Only produce packet summaries, much faster but
 includes very little information
 * **param decryption_key**: Key used to encrypt and decrypt captured traffic.
-* **param encryption_type**: Standard of encryption used in captured traffic 
+* **param encryption_type**: Standard of encryption used in captured traffic
 (must be either 'WEP', 'WPA-PWD', or 'WPA-PWK'. Defaults to WPA-PWK).
 
 ###Reading from a live remote interface:
@@ -94,23 +94,23 @@ includes very little information
 
 #### Other options
 
-* **param remote_host**: The remote host to capture on (IP or hostname). 
+* **param remote_host**: The remote host to capture on (IP or hostname).
 Should be running rpcapd.
-* **param remote_interface**: The remote interface on the remote machine to 
-capture on. Note that on windows it is not the device display name but the 
+* **param remote_interface**: The remote interface on the remote machine to
+capture on. Note that on windows it is not the device display name but the
 true interface name (i.e. \\Device\\NPF_..).
 * **param remote_port**: The remote port the rpcapd service is listening on
-* **param bpf_filter**: A BPF (tcpdump) filter to apply on the cap before 
+* **param bpf_filter**: A BPF (tcpdump) filter to apply on the cap before
 reading.
-* **param only_summaries**: Only produce packet summaries, much faster but 
+* **param only_summaries**: Only produce packet summaries, much faster but
 includes very little information
 * **param decryption_key**: Key used to encrypt and decrypt captured traffic.
-* **param encryption_type**: Standard of encryption used in captured traffic 
+* **param encryption_type**: Standard of encryption used in captured traffic
 (must be either 'WEP', 'WPA-PWD', or 'WPA-PWK'. Defaults to WPA-PWK).
 
 ###Accessing packet data:
 
-Data can be accessed in multiple ways. 
+Data can be accessed in multiple ways.
 Packets are divided into layers, first you have to reach the appropriate layer and then you can select your field.
 
 All of the following work:
@@ -126,14 +126,14 @@ All of the following work:
 
 ###Decrypting packet captures
 
-Pyshark supports automatic decryption of traces using the WEP, WPA-PWD, and WPA-PSK standards (WPA-PWD is the default). 
+Pyshark supports automatic decryption of traces using the WEP, WPA-PWD, and WPA-PSK standards (WPA-PWD is the default).
 
 ```python
 >>> cap1 = pyshark.FileCapture('/tmp/capture1.cap', decryption_key='password')
 >>> cap2 = pyshark.LiveCapture(interface='wi0', decryption_key='password', encryption_type='wpa-psk')
 ```
 
-A tuple of supported encryption standards, SUPPORTED_ENCRYPTION_STANDARDS, 
+A tuple of supported encryption standards, SUPPORTED_ENCRYPTION_STANDARDS,
 exists in each capture class.
 
 ```python
