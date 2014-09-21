@@ -36,14 +36,23 @@ class Capture(object):
         self.running_processes = set()
         self.log = logbook.Logger(self.__class__.__name__, level=self.DEFAULT_LOG_LEVEL)
 
+        if not(decryption_key):
+            self.encryption=None
+        elif isinstance(encryption_type, basestring) and \
+                                        (encryption_type.lower() in 
+                                        self.SUPPORTED_ENCRYPTION_STANDARDS):
+            self.encryption=(decryption_key, encryption_type.lower())
+        else:
+            encryption_standards = "', '".join(
+                    self.SUPPORTED_ENCRYPTION_STANDARDS[:-1]) + "', and '" + \
+                    self.SUPPORTED_ENCRYPTION_STANDARDS[-1]
+            raise UnknownEncyptionStandardException("please choose between '" +\
+                                                    encryption_standards + "'.")
+
         self.eventloop = eventloop
         if self.eventloop is None:
             self.setup_eventloop()
-        if encryption_type and encryption_type.lower() in self.SUPPORTED_ENCRYPTION_STANDARDS:
-            self.encryption = (decryption_key, encryption_type.lower())
-        else:
-            raise UnknownEncyptionStandardException("Only the following standards are supported: %s."
-                                                    % ', '.join(self.SUPPORTED_ENCRYPTION_STANDARDS))
+
     def __getitem__(self, item):
         """
         Gets the packet in the given index.
@@ -281,10 +290,12 @@ class Capture(object):
         parameters = [get_tshark_path(), '-T', xml_type] + self.get_parameters(packet_count=packet_count)
 
         self.log.debug('Creating TShark subprocess with parameters: ' + ' '.join(parameters))
-        tshark_process = yield From(trollius.create_subprocess_exec(*parameters,
-                                                                    stdout=subprocess.PIPE,
-                                                                    stderr=open(os.devnull, "w"),
-                                                                    stdin=stdin))
+        print ' '.join(parameters)
+        tshark_process = yield From(trollius.create_subprocess_exec(
+                                                *parameters,
+                                                stdout=subprocess.PIPE,
+                                                stderr=open(os.devnull, "w"),
+                                                stdin=stdin))
         self.log.debug('TShark subprocess created')
 
         if tshark_process.returncode is not None and self.tshark_process.returncode != 0:
@@ -328,7 +339,7 @@ class Capture(object):
         if packet_count:
             params += ['-c', str(packet_count)]
         if all(self.encryption):
-            params += ['-o', 'wlan.enable_decryption:TRUE', '-o', 'uat:80211_keys:"' + self.encryption[1] + ' ","' +
+            params += ['-o', 'wlan.enable_decryption:TRUE', '-o', 'uat:80211_keys:"' + self.encryption[1] + '","' +
                                                                   self.encryption[0] + '"']
         return params
 

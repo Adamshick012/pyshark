@@ -26,7 +26,8 @@ class FileCapture(Capture):
         self.input_filename = input_file
         if not isinstance(input_file, basestring):
             self.input_filename = input_file.name
-
+        else:
+            self.input_file = input_file
         self.keep_packets = keep_packets
         self._packet_generator = self._packets_from_tshark_sync()
 
