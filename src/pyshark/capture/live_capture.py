@@ -7,9 +7,7 @@ class LiveCapture(Capture):
     Represents a live capture on a network interface.
     """
 
-    def __init__(self, interface=None, bpf_filter=None, display_filter=None, 
-                 only_summaries=False, decryption_key=None, 
-                 encryption_type='wpa-pwd'):
+    def __init__(self, interface=None, bpf_filter=None, **kwargs):
         """
         Creates a new live capturer on a given interface. Does not start the 
         actual capture itself.
@@ -26,10 +24,7 @@ class LiveCapture(Capture):
         traffic (must be either 'WEP', 'WPA-PWD', or 'WPA-PWK'. Defaults to 
         WPA-PWK).
         """
-        super(LiveCapture, self).__init__(display_filter=display_filter, 
-                                          only_summaries=only_summaries,
-                                          decryption_key=decryption_key, 
-                                          encryption_type=encryption_type)
+        super(LiveCapture, self).__init__(**kwargs)
         self.bpf_filter = bpf_filter
         
         if interface is None:

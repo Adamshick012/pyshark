@@ -18,19 +18,29 @@ class Capture(object):
     SUPPORTED_ENCRYPTION_STANDARDS=('wep', 'wpa-pwd', 'wpa-psk')
 
     def __init__(self, display_filter=None, only_summaries=False, 
-                 decryption_key=None, encryption_type='wpa-pwd'):
+                 decryption_key=None, encryption_type='wpa-pwd',
+                 decryption_keys=None):
         self._packets = []
         self.current_packet = 0
         self.display_filter = display_filter
         self.only_summaries = only_summaries
         self.tshark_process = None
-        if not(decryption_key):
-            self.encryption=None
-        elif isinstance(encryption_type, basestring) and \
-                                        (encryption_type.lower() in 
-                                        self.SUPPORTED_ENCRYPTION_STANDARDS):
-            self.encryption=(decryption_key, encryption_type.lower())
-        else:
+        if not(decryption_key or decryption_keys):
+            self.encryption = []
+        elif decryption_key:
+            ### Return a list of tuples
+            self.encryption=[(encryption_type.lower(), decryption_key)]
+        elif decryption_keys:
+            ### If it's all strings, use encryption_type as a default
+            if all(map(lambda x:isinstance(x,basestring), decryption_keys)):
+                self.encryption = map(lambda k: (encryption_type.lower(), k), 
+                                      decryption_keys)
+            ### else, assume it's all tuples
+            else:
+                self.encryption = map(lambda d: (d[0].lower(), d[1]), 
+                                      decryption_keys)
+        if self.encryption and any(map(lambda e: e[0] not in self.SUPPORTED_ENCRYPTION_STANDARDS, self.encryption)):
+
             encryption_standards = "', '".join(
                     self.SUPPORTED_ENCRYPTION_STANDARDS[:-1]) + "', and '" + \
                     self.SUPPORTED_ENCRYPTION_STANDARDS[-1]
@@ -142,9 +152,9 @@ class Capture(object):
         previously-set paramaters.
         """
         if self.encryption:
-            extra_params+=['-o', 'wlan.enable_decryption:TRUE', '-o', 
-                           'uat:80211_keys:"'+self.encryption[1]+'","'+\
-                           self.encryption[0]+'"']
+            extra_params += ['-o', 'wlan.enable_decryption:TRUE']
+            for enc in self.encryption:
+                extra_params += ['-o', 'uat:80211_keys:"{}","{}"'.format(*enc)]
         xml_type = 'psml' if self.only_summaries else 'pdml'
         parameters = [get_tshark_path(), '-T', xml_type] +\
                      self.get_parameters(packet_count=packet_count) +\

@@ -6,8 +6,7 @@ class FileCapture(Capture):
     """
 
     def __init__(self, input_file=None, lazy=True, keep_packets=True, 
-                 display_filter=None, only_summaries=False,
-                 decryption_key=None, encryption_type='wpa-pwd'):
+                 **kwargs):
         """
         Creates a packet capture object by reading from file.
 
@@ -30,10 +29,7 @@ class FileCapture(Capture):
         traffic (must be either 'WEP', 'WPA-PWD', or 'WPA-PWK'. Defaults to 
         WPA-PWK).
         """
-        super(FileCapture, self).__init__(display_filter=display_filter, 
-                                          only_summaries=only_summaries,
-                                          decryption_key=decryption_key, 
-                                          encryption_type=encryption_type)
+        super(FileCapture, self).__init__(**kwargs)
         if isinstance(input_file, basestring):
             self.input_file = open(input_file, 'rb')
         else:

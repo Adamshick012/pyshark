@@ -8,8 +8,7 @@ class RemoteCapture(LiveCapture):
     """
 
     def __init__(self, remote_host, remote_interface, remote_port=2002, 
-                 bpf_filter=None, only_summaries=False, decryption_key=None, 
-                 encryption_type='wpa-pwd'):
+                 bpf_filter=None, **kwargs):
         """
         Creates a new remote capture which will connect to a remote machine 
         which is running rpcapd. Use the sniff() method
